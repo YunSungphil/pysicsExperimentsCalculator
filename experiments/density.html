@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>액체의 밀도 측정</title>
+    <link rel="stylesheet" href="../style.css">
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="../index.html">🏠 홈</a>
+        <a href="density.html" class="active">1. 액체의 밀도</a>
+        <a href="force.html">2. 힘의 합성</a>
+        <a href="sound.html">3. 소리 속도</a>
+        <a href="expansion.html">4. 선팽창</a>
+        <a href="glider.html">5. 가속도</a>
+        <a href="centripetal.html">6. 구심력</a>
+        <a href="bullet.html">7. 탄환 속도</a>
+        <a href="torque.html">8. 회전 평형</a>
+        <a href="gravity.html">9. 중력가속도</a>
+        <a href="moment.html">10. 관성모멘트</a>
+    </div>
+
+    <div class="content">
+        <h2>실험 1 - 액체의 밀도 측정</h2>
+
+        <h3>📌 물의 밀도 (\(\rho_w\)) 입력</h3>
+        <p>물의 밀도 (\(\rho_w\)) 값을 입력하세요:</p>
+        <input type="number" id="rho_w" placeholder="g/cm³">
+
+        <h3>📌 액체 기둥의 높이 측정값 및 밀도 계산</h3>
+        <p>아래 표에서 **회색 칸**에 값을 입력한 후 "계산하기" 버튼을 누르면 결과가 자동으로 계산됩니다.</p>
+        
+        <table border="1">
+            <tr>
+                <th rowspan="2">회차</th>
+                <th colspan="3">에틸-알코올</th>
+                <th colspan="3">물</th>
+                <th rowspan="2">밀도 \( \rho_a \) (g/cm³)</th>
+            </tr>
+            <tr>
+                <th>\( h_a \)</th>
+                <th>\( h'_a \)</th>
+                <th>\( h_a - h'_a \)</th>
+                <th>\( h_w \)</th>
+                <th>\( h'_w \)</th>
+                <th>\( h_w - h'_w \)</th>
+            </tr>
+            
+            <!-- 데이터 입력 -->
+            <tr>
+                <td>1</td>
+                <td><input type="number" id="ha1"></td>
+                <td><input type="number" id="ha_p1"></td>
+                <td><span id="ha_diff1">-</span></td>
+                <td><input type="number" id="hw1"></td>
+                <td><input type="number" id="hw_p1"></td>
+                <td><span id="hw_diff1">-</span></td>
+                <td><span id="density1">-</span></td>
+            </tr>
+
+            <tr>
+                <td>2</td>
+                <td><input type="number" id="ha2"></td>
+                <td><input type="number" id="ha_p2"></td>
+                <td><span id="ha_diff2">-</span></td>
+                <td><input type="number" id="hw2"></td>
+                <td><input type="number" id="hw_p2"></td>
+                <td><span id="hw_diff2">-</span></td>
+                <td><span id="density2">-</span></td>
+            </tr>
+
+            <tr>
+                <td>3</td>
+                <td><input type="number" id="ha3"></td>
+                <td><input type="number" id="ha_p3"></td>
+                <td><span id="ha_diff3">-</span></td>
+                <td><input type="number" id="hw3"></td>
+                <td><input type="number" id="hw_p3"></td>
+                <td><span id="hw_diff3">-</span></td>
+                <td><span id="density3">-</span></td>
+            </tr>
+
+            <tr>
+                <td>4</td>
+                <td><input type="number" id="ha4"></td>
+                <td><input type="number" id="ha_p4"></td>
+                <td><span id="ha_diff4">-</span></td>
+                <td><input type="number" id="hw4"></td>
+                <td><input type="number" id="hw_p4"></td>
+                <td><span id="hw_diff4">-</span></td>
+                <td><span id="density4">-</span></td>
+            </tr>
+
+            <tr>
+                <td colspan="7">평균 밀도</td>
+                <td><span id="averageDensity">-</span></td>
+            </tr>
+        </table>
+
+        <br>
+        <button onclick="calculateDensity()">계산하기</button>
+
+        <h4>📌 밀도 공식</h4>
+        \[
+        \rho_a = \left( \frac{h_w - h'_w}{h_a - h'_a} \right) \rho_w
+        \]
+    </div>
+
+    <script>
+        function calculateDensity() {
+            let pw = parseFloat(document.getElementById("rho_w").value); // 사용자가 입력한 물의 밀도
+
+            if (isNaN(pw) || pw <= 0) {
+                alert("올바른 물의 밀도를 입력하세요!");
+                return;
+            }
+
+            let densities = [];
+            for (let i = 1; i <= 4; i++) {
+                let ha = parseFloat(document.getElementById(`ha${i}`).value);
+                let ha_p = parseFloat(document.getElementById(`ha_p${i}`).value);
+                let hw = parseFloat(document.getElementById(`hw${i}`).value);
+                let hw_p = parseFloat(document.getElementById(`hw_p${i}`).value);
+                
+                if (!isNaN(ha) && !isNaN(ha_p)) {
+                    document.getElementById(`ha_diff${i}`).innerText = (ha - ha_p).toFixed(1);
+                }
+
+                if (!isNaN(hw) && !isNaN(hw_p)) {
+                    document.getElementById(`hw_diff${i}`).innerText = (hw - hw_p).toFixed(1);
+                }
+
+                if (!isNaN(ha) && !isNaN(ha_p) && !isNaN(hw) && !isNaN(hw_p) && ha !== ha_p) {
+                    let density = ((hw - hw_p) / (ha - ha_p)) * pw;
+                    document.getElementById(`density${i}`).innerText = density.toFixed(4);
+                    densities.push(density);
+                }
+            }
+
+            if (densities.length > 0) {
+                let avgDensity = densities.reduce((a, b) => a + b, 0) / densities.length;
+                document.getElementById("averageDensity").innerText = avgDensity.toFixed(4);
+            } else {
+                document.getElementById("averageDensity").innerText = "-";
+            }
+        }
+    </script>
+</body>
+</html>

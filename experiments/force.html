@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>힘의 합성과 분해</title>
+    <link rel="stylesheet" href="../style.css">
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="../index.html">🏠 홈</a>
+        <a href="density.html">1. 액체의 밀도</a>
+        <a href="force.html" class="active">2. 힘의 합성과 분해</a>
+        <a href="sound.html">3. 소리 속도</a>
+        <a href="expansion.html">4. 선팽창</a>
+        <a href="glider.html">5. 가속도</a>
+        <a href="centripetal.html">6. 구심력</a>
+        <a href="bullet.html">7. 탄환 속도</a>
+        <a href="torque.html">8. 회전 평형</a>
+        <a href="gravity.html">9. 중력가속도</a>
+        <a href="moment.html">10. 관성모멘트</a>
+    </div>
+
+    <div class="content">
+        <h2>실험 2 - 힘의 합성과 분해</h2>
+
+        <h3>📌 첫 번째 표: 각도 및 질량 측정</h3>
+        <table border="1">
+            <tr>
+                <th class="header-cell">회</th>
+                <th class="header-cell">\( \theta_A \) (°)</th>
+                <th class="header-cell">\( \theta_B \) (°)</th>
+                <th class="header-cell">\( \theta_R \) (°)</th>
+                <th class="header-cell">\( m_A \) (g)</th>
+                <th class="header-cell">\( m_B \) (g)</th>
+                <th class="header-cell">\( m_R \) (g)</th>
+            </tr>
+            <!-- 5회 반복 -->
+            <script>
+                for (let i = 1; i <= 5; i++) {
+                    document.write(`
+                        <tr>
+                            <td class="header-cell">${i}</td>
+                            <td><input type="number" id="thetaA_${i}"></td>
+                            <td><input type="number" id="thetaB_${i}"></td>
+                            <td><input type="number" id="thetaR_${i}"></td>
+                            <td><input type="number" id="mA_${i}"></td>
+                            <td><input type="number" id="mB_${i}"></td>
+                            <td><input type="number" id="mR_${i}"></td>
+                        </tr>
+                    `);
+                }
+            </script>
+        </table>
+
+        <h3>📌 두 번째 표: 이론값과 실험값 비교</h3>
+        <table border="1">
+            <tr>
+                <th class="header-cell">회</th>
+                <th class="header-cell">\( C_{\text{이론}} \) (gN)</th>
+                <th class="header-cell">\( \phi \) (°)</th>
+                <th class="header-cell">\( C_{\text{실험}} \) (gN)</th>
+                <th class="header-cell">\( \theta_R \) (°)</th>
+                <th class="header-cell">\(\frac{C_{\text{이론}} - C_{\text{실험}}}{C_{\text{이론}}} \times 100\%\)</th>
+                <th class="header-cell">\(\frac{\phi - \theta_R}{\phi} \times 100\%\)</th>
+            </tr>
+            <script>
+                for (let i = 1; i <= 5; i++) {
+                    document.write(`
+                        <tr>
+                            <td class="header-cell">${i}</td>
+                            <td><span id="Ctheory_${i}">-</span></td>
+                            <td><span id="phi_${i}">-</span></td>
+                            <td><span id="Cexp_${i}">-</span></td> <!-- 자동 입력 -->
+                            <td><span id="thetaR_${i}">-</span></td> <!-- 자동 입력 -->
+                            <td><span id="error_C_${i}">-</span></td>
+                            <td><span id="error_phi_${i}">-</span></td>
+                        </tr>
+                    `);
+                }
+            </script>
+            <tr>
+                <td class="header-cell">평균</td>
+                <td class="x-cell">X</td>
+                <td class="x-cell">X</td>
+                <td class="x-cell">X</td>
+                <td class="x-cell">X</td>
+                <td><span id="avg_error_C">-</span></td>
+                <td><span id="avg_error_phi">-</span></td>
+            </tr>
+        </table>
+
+        <br>
+        <button onclick="calculateForce()">계산하기</button>
+
+        <script>
+            function calculateForce() {
+                let sum_error_C = 0, sum_error_phi = 0;
+                let count = 0;
+        
+                for (let i = 1; i <= 5; i++) {
+                    // 첫 번째 표에서 값 가져오기
+                    let mA = parseFloat(document.getElementById(`mA_${i}`).value);
+                    let mB = parseFloat(document.getElementById(`mB_${i}`).value);
+                    let thetaA = parseFloat(document.getElementById(`thetaA_${i}`).value);
+                    let thetaB = parseFloat(document.getElementById(`thetaB_${i}`).value);
+                    let mR = parseFloat(document.getElementById(`mR_${i}`).value);
+                    let thetaR = parseFloat(document.getElementById(`thetaR_${i}`).value);
+        
+                    // 값이 제대로 입력되지 않은 경우 넘어감
+                    if (isNaN(mA) || isNaN(mB) || isNaN(thetaA) || isNaN(thetaB) || isNaN(mR) || isNaN(thetaR)) continue;
+        
+                    // 🔥 첫 번째 표의 값을 두 번째 표로 복사 (자동 입력)
+                    document.getElementById(`Cexp_${i}`).innerText = -mR.toFixed(4); // 음수 변환 후 입력
+                    document.getElementById(`thetaR_${i}`).innerText = thetaR.toFixed(2); // 그대로 입력
+        
+                    // 🔥 이론값 C_theory 계산 (중력가속도 g 제거)
+                    let radA = thetaA * (Math.PI / 180);
+                    let radB = thetaB * (Math.PI / 180);
+                    let Ctheory = Math.sqrt(mA**2 + mB**2 + 2 * mA * mB * Math.cos(radB - radA));
+                    document.getElementById(`Ctheory_${i}`).innerText = Ctheory.toFixed(4);
+        
+                    // 🔥 φ (파이) 계산
+                    let phi = Math.atan2(mA * Math.sin(radA) + mB * Math.sin(radB), mA * Math.cos(radA) + mB * Math.cos(radB)) * (180 / Math.PI);
+                    document.getElementById(`phi_${i}`).innerText = phi.toFixed(2);
+        
+                    // 🔥 오차 계산
+                    if (!isNaN(mR) && !isNaN(thetaR)) {
+                        let error_C = Math.abs((Ctheory - (-mR)) / Ctheory) * 100;
+                        let error_phi = Math.abs((phi - thetaR) / phi) * 100;
+        
+                        document.getElementById(`error_C_${i}`).innerText = error_C.toFixed(2);
+                        document.getElementById(`error_phi_${i}`).innerText = error_phi.toFixed(2);
+        
+                        sum_error_C += error_C;
+                        sum_error_phi += error_phi;
+                        count++;
+                    }
+                }
+        
+                // 평균 계산
+                if (count > 0) {
+                    document.getElementById("avg_error_C").innerText = (sum_error_C / count).toFixed(2);
+                    document.getElementById("avg_error_phi").innerText = (sum_error_phi / count).toFixed(2);
+                }
+            }
+        </script>
+        
