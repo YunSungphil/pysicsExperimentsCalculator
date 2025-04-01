@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공기 중 소리 속도 측정</title>
+  <link rel="stylesheet" href="../style.css">
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+</head>
+<body>
+  <div class="sidebar">
+    <a href="../index.html">🏠 홈</a>
+    <a href="density.html">1. 액체의 밀도</a>
+    <a href="force.html">2. 힘의 합성과 분해</a>
+    <a href="sound.html" class="active">3. 소리 속도</a>
+    <a href="expansion.html">4. 선팽창</a>
+    <a href="glider.html">5. 가속도</a>
+    <a href="centripetal.html">6. 구심력</a>
+    <a href="bullet.html">7. 탄환 속도</a>
+    <a href="torque.html">8. 회전 평형</a>
+    <a href="gravity.html">9. 중력가속도</a>
+    <a href="moment.html">10. 관성모멘트</a>
+  </div>
+
+  <div class="content">
+    <h2>실험 3 - 공기 중에서의 소리 속도 측정</h2>
+    <p><strong>실험 목적:</strong> 기주공명 장치를 이용하여 공기 중에서의 소리의 속도를 측정한다. 또한, 유체 내에서의 소리의 전파 원리와 파동의 특성으로서의 공명정상파를 이해한다.</p>
+
+    <p>소리굽쇠 진동수 (Hz): <input type="number" id="frequency" style="width: 100px;"></p>
+
+    <h3>📌 유리관 내의 공기 중의 온도와 공명 마디점의 위치</h3>
+    <table border="1">
+      <tr>
+        <th>회</th>
+        <th><span>\( t_i \)</span> (°C)</th>
+        <th><span>\( t_f \)</span> (°C)</th>
+        <th><span>\( y_1 \)</span> (m)</th>
+        <th><span>\( y_2 \)</span> (m)</th>
+        <th><span>\( y_3 \)</span> (m)</th>
+        <th><span>\( y_4 \)</span> (m)</th>
+      </tr>
+      <script>
+        for (let i = 1; i <= 5; i++) {
+          document.write(`
+            <tr>
+              <td>${i}</td>
+              <td><input type="number" id="ti_${i}"></td>
+              <td><input type="number" id="tf_${i}"></td>
+              <td><input type="number" id="y1_${i}"></td>
+              <td><input type="number" id="y2_${i}"></td>
+              <td><input type="number" id="y3_${i}"></td>
+              <td><input type="number" id="y4_${i}"></td>
+            </tr>
+          `);
+        }
+      </script>
+    </table>
+
+    <br>
+    <button onclick="calculateSound()">계산하기</button>
+
+    <h3>📌 실험 온도와 공명정상파의 파장 계산</h3>
+    <table border="1">
+      <tr>
+        <th>회</th>
+        <th><span>\( t \)</span> (°C)</th>
+        <th><span>\( \lambda_1 \)</span> (m)</th>
+        <th><span>\( \lambda_2 \)</span> (m)</th>
+        <th><span>\( \lambda_3 \)</span> (m)</th>
+        <th><span>\( \lambda \)</span> (m)</th>
+      </tr>
+      <script>
+        for (let i = 1; i <= 5; i++) {
+          document.write(`
+            <tr>
+              <td>${i}</td>
+              <td><span id="t_${i}">-</span></td>
+              <td><span id="lambda1_${i}">-</span></td>
+              <td><span id="lambda2_${i}">-</span></td>
+              <td><span id="lambda3_${i}">-</span></td>
+              <td><span id="lambda_${i}">-</span></td>
+            </tr>
+          `);
+        }
+      </script>
+    </table>
+
+    <h3>📌 공기 중에서의 소리의 속도의 측정값과 이론값</h3>
+    <table border="1">
+      <tr>
+        <th>회</th>
+        <th><span>\( v_{\text{실험}} \)</span> (m/s)</th>
+        <th><span>\( v_{\text{이론}} \)</span> (m/s)</th>
+        <th>오차 (%)</th>
+      </tr>
+      <script>
+        for (let i = 1; i <= 5; i++) {
+          document.write(`
+            <tr>
+              <td>${i}</td>
+              <td><span id="v_exp_${i}">-</span></td>
+              <td><span id="v_theory_${i}">-</span></td>
+              <td><span id="error_${i}">-</span></td>
+            </tr>
+          `);
+        }
+      </script>
+      <tr>
+        <td>평균</td>
+        <td><span id="v_exp_avg">0.00</span></td>
+        <td><span id="v_theory_avg">0.00</span></td>
+        <td><span id="error_avg">0.00</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    function calculateSound() {
+      let freq = parseFloat(document.getElementById("frequency").value);
+      if (isNaN(freq)) return alert("진동수를 입력해주세요.");
+
+      let sumVexp = 0, sumVtheory = 0, sumError = 0, count = 0;
+
+      for (let i = 1; i <= 5; i++) {
+        let ti = parseFloat(document.getElementById(`ti_${i}`).value);
+        let tf = parseFloat(document.getElementById(`tf_${i}`).value);
+        let y1 = parseFloat(document.getElementById(`y1_${i}`).value);
+        let y2 = parseFloat(document.getElementById(`y2_${i}`).value);
+        let y3 = parseFloat(document.getElementById(`y3_${i}`).value);
+        let y4 = parseFloat(document.getElementById(`y4_${i}`).value);
+        if ([ti, tf, y1, y2, y3, y4].some(isNaN)) continue;
+
+        let t = (ti + tf) / 2;
+        let lambda1 = 2 * (y2 - y1);
+        let lambda2 = 2 * (y3 - y2);
+        let lambda3 = 2 * (y4 - y3);
+        let lambdaAvg = (lambda1 + lambda2 + lambda3) / 3;
+
+        let v_exp = freq * lambdaAvg;
+        let v_theory = 332 + 0.6 * t;
+        let error = (v_theory - v_exp) / v_theory * 100;
+
+        document.getElementById(`t_${i}`).innerText = t.toFixed(2);
+        document.getElementById(`lambda1_${i}`).innerText = lambda1.toFixed(4);
+        document.getElementById(`lambda2_${i}`).innerText = lambda2.toFixed(4);
+        document.getElementById(`lambda3_${i}`).innerText = lambda3.toFixed(4);
+        document.getElementById(`lambda_${i}`).innerText = lambdaAvg.toFixed(4);
+        document.getElementById(`v_exp_${i}`).innerText = v_exp.toFixed(2);
+        document.getElementById(`v_theory_${i}`).innerText = v_theory.toFixed(2);
+        document.getElementById(`error_${i}`).innerText = error.toFixed(2);
+
+        sumVexp += v_exp;
+        sumVtheory += v_theory;
+        sumError += error;
+        count++;
+      }
+
+      if (count > 0) {
+        document.getElementById("v_exp_avg").innerText = (sumVexp / count).toFixed(2);
+        document.getElementById("v_theory_avg").innerText = (sumVtheory / count).toFixed(2);
+        document.getElementById("error_avg").innerText = (sumError / count).toFixed(2);
+      }
+    }
+  </script>
+</body>
+</html>
