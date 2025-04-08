@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>선팽창계수 측정</title>
+  <link rel="stylesheet" href="../style.css">
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <style>
+    table { border-collapse: collapse; margin-bottom: 20px; width: 100%; max-width: 900px; }
+    th, td { border: 1px solid #aaa; padding: 6px 10px; text-align: center; }
+    input { width: 80px; }
+    .x-cell { background-color: #eee; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="../index.html">🏠 홈</a>
+  <a href="density.html">1. 액체의 밀도</a>
+  <a href="force.html">2. 힘의 합성과 분해</a>
+  <a href="sound.html">3. 소리 속도</a>
+  <a href="expansion.html" class="active">4. 선팽창</a>
+  <a href="glider.html">5. 가속도</a>
+  <a href="centripetal.html">6. 구심력</a>
+  <a href="bullet.html">7. 탄환 속도</a>
+  <a href="torque.html">8. 회전 평형</a>
+  <a href="gravity.html">9. 중력가속도</a>
+  <a href="moment.html">10. 관성모멘트</a>
+</div>
+
+<div class="content">
+  <h2>실험 4 - 선팽창계수 측정</h2>
+  <p><strong>실험 목적:</strong> 고체가 열에 의해 그 길이가 늘어나거나 줄어든다는 사실을 확인하고 이와 관련된 선팽창계수가 물질의 고유한 성질임을 이해한다.</p>
+
+  <p>(1) 고체 시료 이름:
+    <select id="material" onchange="updateAlphaTrue()">
+      <option value="">선택</option>
+      <option value="철">철</option>
+      <option value="알루미늄">알루미늄</option>
+      <option value="구리">구리</option>
+    </select>
+  </p>
+
+  <p>(2) 시료 막대의 길이 \(L_0\) (mm): <input type="number" id="L0_input"></p>
+  <p>(3) 선팽창계수의 참값 \( \alpha_{\text{true}} \): <span id="alpha_true_display">-</span></p>
+
+  <table>
+    <tr>
+        <th rowspan="2">회</th>
+        <th colspan="3">온도 (°C)</th>
+        <th colspan="3">다이얼 게이지 눈금 (mm)</th>
+        <th rowspan="2">\( \alpha \) (1/°C)</th>
+        <th rowspan="2">\( \frac{ \alpha_{\text{true}} - \alpha }{ \alpha_{\text{true}} } \times 100 \)</th>
+    </tr>
+    <tr>
+        <th>\( T_i \)</th>
+        <th>\( T_f \)</th>
+        <th>\( \Delta T \)</th>
+        <th>\( L_i \)</th>
+        <th>\( L_f \)</th>
+        <th>\( \Delta L \)</th>
+    </tr>
+    <tr>
+      <td>시료를 가열하면서</td>
+      <td><input id="Ti_0" oninput="autoCalc(0)"></td>
+      <td><input id="Tf_0" oninput="autoCalc(0)"></td>
+      <td><span id="dT_0">-</span></td>
+      <td><input id="Li_0" oninput="autoCalc(0)"></td>
+      <td><input id="Lf_0" oninput="autoCalc(0)"></td>
+      <td><span id="dL_0">-</span></td>
+      <td><span id="alpha_0">-</span></td>
+      <td><span id="error_0">-</span></td>
+    </tr>
+    <tr>
+      <td>시료를 식히면서</td>
+      <td><input id="Ti_1" oninput="autoCalc(1)"></td>
+      <td><input id="Tf_1" oninput="autoCalc(1)"></td>
+      <td><span id="dT_1">-</span></td>
+      <td><input id="Li_1" oninput="autoCalc(1)"></td>
+      <td><input id="Lf_1" oninput="autoCalc(1)"></td>
+      <td><span id="dL_1">-</span></td>
+      <td><span id="alpha_1">-</span></td>
+      <td><span id="error_1">-</span></td>
+    </tr>
+    <tr>
+      <td>평균</td>
+      <td class="x-cell">X</td><td class="x-cell">X</td><td class="x-cell">X</td>
+      <td class="x-cell">X</td><td class="x-cell">X</td><td class="x-cell">X</td>
+      <td><span id="alpha_avg">-</span></td>
+      <td><span id="error_avg">-</span></td>
+    </tr>
+  </table>
+</div>
+
+<script>
+function updateAlphaTrue() {
+  const material = document.getElementById("material").value;
+  const alphaMap = {
+    "알루미늄": "2.4 × 10⁻⁵",
+    "철": "1.2 × 10⁻⁵",
+    "구리": "1.6 × 10⁻⁵"
+  };
+  document.getElementById("alpha_true_display").innerText = alphaMap[material] || "-";
+}
+
+function autoCalc(i) {
+  const Ti = parseFloat(document.getElementById(`Ti_${i}`).value);
+  const Tf = parseFloat(document.getElementById(`Tf_${i}`).value);
+  const Li = parseFloat(document.getElementById(`Li_${i}`).value);
+  const Lf = parseFloat(document.getElementById(`Lf_${i}`).value);
+  const L0 = parseFloat(document.getElementById("L0_input").value);
+  const alphaStr = document.getElementById("alpha_true_display").innerText;
+  let alphaTrue = 0;
+  if (alphaStr.includes("2.4")) alphaTrue = 2.4e-5;
+  else if (alphaStr.includes("1.2")) alphaTrue = 1.2e-5;
+  else if (alphaStr.includes("1.6")) alphaTrue = 1.6e-5;
+
+  if (!isNaN(Ti) && !isNaN(Tf)) {
+    const dT = Tf - Ti;
+    document.getElementById(`dT_${i}`).innerText = dT.toFixed(4);
+    if (!isNaN(Li) && !isNaN(Lf)) {
+      const dL = Lf - Li;
+      document.getElementById(`dL_${i}`).innerText = dL.toFixed(4);
+      if (!isNaN(L0) && L0 !== 0 && dT !== 0) {
+        const alpha = dL / (L0 * dT);
+        document.getElementById(`alpha_${i}`).innerText = alpha.toExponential(4);
+        const error = ((alphaTrue - alpha) / alphaTrue) * 100;
+        document.getElementById(`error_${i}`).innerText = error.toFixed(4);
+      }
+    }
+  }
+
+  // 평균 계산
+  const a0 = parseFloat(document.getElementById("alpha_0").innerText);
+  const a1 = parseFloat(document.getElementById("alpha_1").innerText);
+  const e0 = parseFloat(document.getElementById("error_0").innerText);
+  const e1 = parseFloat(document.getElementById("error_1").innerText);
+  if (!isNaN(a0) && !isNaN(a1)) {
+    document.getElementById("alpha_avg").innerText = ((a0 + a1) / 2).toExponential(4);
+  }
+  if (!isNaN(e0) && !isNaN(e1)) {
+    document.getElementById("error_avg").innerText = ((e0 + e1) / 2).toFixed(4);
+  }
+}
+</script>
+
+</body>
+</html>
