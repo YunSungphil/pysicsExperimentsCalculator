@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>글라이더의 가속도 측정</title>
+  <link rel="stylesheet" href="../style.css">
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <style>
+    table { border-collapse: collapse; margin-bottom: 20px; width: 100%; max-width: 800px; }
+    th, td { border: 1px solid #aaa; padding: 6px 10px; text-align: center; }
+    input[type="number"] { width: 100px; }
+    .x-cell { background-color: #eee; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="../index.html">🏠 홈</a>
+  <a href="density.html">1. 액체의 밀도</a>
+  <a href="force.html">2. 힘의 합성과 분해</a>
+  <a href="sound.html">3. 소리 속도</a>
+  <a href="expansion.html">4. 선팽창</a>
+  <a href="glider.html" class="active">5. 가속도</a>
+  <a href="centripetal.html">6. 구심력</a>
+  <a href="bullet.html">7. 탄환 속도</a>
+  <a href="torque.html">8. 회전 평형</a>
+  <a href="gravity.html">9. 중력가속도</a>
+  <a href="moment.html">10. 관성모멘트</a>
+</div>
+
+<div class="content">
+  <h2>실험 5 - 글라이더의 가속도 측정</h2>
+  <p><strong>실험 목적:</strong> 뉴턴(Newton)의 운동 제2법칙 \( F = ma \) 를 이해한다.</p>
+
+  <p>글라이더의 질량 \( m \) (g): <input type="number" id="glider" oninput="update()">  
+     &nbsp;&nbsp;추의 질량 \( M \) (g): <input type="number" id="weight" oninput="update()"></p>
+
+  <table>
+    <tr>
+      <th>회</th>
+      <th>\( a_{\text{실험}} \)<br>(cm/s²)</th>
+      <th>\( a_{\text{이론}} \)<br>(cm/s²)</th>
+      <th>오차율 (%)</th>
+    </tr>
+    <tbody id="table-body"></tbody>
+    <tr>
+      <td>평균</td>
+      <td id="avg_exp">-</td>
+      <td class="x-cell">X</td>
+      <td id="avg_err">-</td>
+    </tr>
+  </table>
+</div>
+
+<script>
+function update() {
+  const gravity = 980; // cm/s²
+  const glider = parseFloat(document.getElementById("glider").value);
+  const weight = parseFloat(document.getElementById("weight").value);
+  const theoryValid = !isNaN(glider) && !isNaN(weight);
+  const theory = theoryValid ? (weight / (glider + weight)) * gravity : null;
+
+  let expSum = 0, errSum = 0, count = 0;
+
+  for (let i = 0; i < 5; i++) {
+    const expInput = document.getElementById(`exp_${i}`);
+    const theoCell = document.getElementById(`theory_${i}`);
+    const errCell = document.getElementById(`err_${i}`);
+
+    const exp = parseFloat(expInput.value);
+    if (!isNaN(exp) && theoryValid) {
+      const error = ((theory - exp) / theory) * 100;
+      theoCell.innerText = theory.toFixed(4);
+      errCell.innerText = error.toFixed(4);
+      expSum += exp;
+      errSum += error;
+      count++;
+    } else {
+      theoCell.innerText = "-";
+      errCell.innerText = "-";
+    }
+  }
+
+  document.getElementById("avg_exp").innerText = count > 0 ? (expSum / count).toFixed(4) : "-";
+  document.getElementById("avg_err").innerText = count > 0 ? (errSum / count).toFixed(4) : "-";
+}
+
+function buildTable() {
+  const tbody = document.getElementById("table-body");
+  for (let i = 0; i < 5; i++) {
+    const row = document.createElement("tr");
+
+    const tdIndex = document.createElement("td");
+    tdIndex.innerText = i + 1;
+
+    const tdExp = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = `exp_${i}`;
+    input.oninput = update;
+    tdExp.appendChild(input);
+
+    const tdTheo = document.createElement("td");
+    tdTheo.id = `theory_${i}`;
+
+    const tdErr = document.createElement("td");
+    tdErr.id = `err_${i}`;
+
+    row.appendChild(tdIndex);
+    row.appendChild(tdExp);
+    row.appendChild(tdTheo);
+    row.appendChild(tdErr);
+
+    tbody.appendChild(row);
+  }
+}
+
+window.onload = buildTable;
+</script>
+
+</body>
+</html>
