@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>실험 6 - 구심력 측정</title>
+  <link rel="stylesheet" href="../style.css">
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+  <style>
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; max-width: 1000px; }
+    th, td { border: 1px solid #aaa; padding: 6px 10px; text-align: center; }
+    input[type="number"] { width: 90px; }
+    .x-cell { background-color: #eee; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="../index.html">🏠 홈</a>
+  <a href="density.html">1. 액체의 밀도</a>
+  <a href="force.html">2. 힘의 합성과 분해</a>
+  <a href="sound.html">3. 소리 속도</a>
+  <a href="expansion.html">4. 선팽창</a>
+  <a href="glider.html">5. 가속도</a>
+  <a href="centripetal.html" class="active">6. 구심력</a>
+  <a href="bullet.html">7. 탄환 속도</a>
+  <a href="torque.html">8. 회전 평형</a>
+  <a href="gravity.html">9. 중력가속도</a>
+  <a href="moment.html">10. 관성모멘트</a>
+</div>
+
+<div class="content">
+  <h2>실험 6 - 구심력 측정</h2>
+  <p><strong>실험 목적:</strong> 회전 운동을 하는 질량체의 구심력 \\( F_c \\)를 실험적으로 구하고, 이론값 \\( F_g \\)와 비교하여 오차율을 분석한다.</p>
+
+  <p>1. 추의 질량 \\( m \\) (g): <input type="number" id="mass" oninput="calcAll()">  
+     &nbsp;&nbsp;2. 회전반경 \\( r \\) (cm): <input type="number" id="radius" oninput="calcAll()"></p>
+
+  <table>
+    <tr>
+      <th>회</th>
+      <th rowspan="3"><input type="number" id="Fg" oninput="calcAll()"> <br>\\( F_g \\) (dyne)</th>
+      <th>\\( N \\)</th>
+      <th>\\( t \\) (s)</th>
+      <th>\\( T \\) (s)</th>
+      <th>\\( \\omega \\) (rad/s)</th>
+      <th>\\( F_c \\) (dyne)</th>
+      <th>오차율 (%)</th>
+    </tr>
+    <tbody id="table-body"></tbody>
+    <tr>
+      <td>평균</td>
+      <td class="x-cell">X</td>
+      <td id="avg_N">-</td>
+      <td id="avg_t">-</td>
+      <td id="avg_T">-</td>
+      <td id="avg_omega">-</td>
+      <td id="avg_Fc">-</td>
+      <td id="avg_err">-</td>
+    </tr>
+  </table>
+</div>
+
+<script>
+function buildTable() {
+  const tbody = document.getElementById("table-body");
+  for (let i = 0; i < 3; i++) {
+    const row = document.createElement("tr");
+
+    const td1 = document.createElement("td");
+    td1.innerText = i + 1;
+
+    const td2 = (i === 0) ? null : null; // 병합된 셀은 첫 번째 줄에만 있음
+
+    const tdN = document.createElement("td");
+    const inputN = document.createElement("input");
+    inputN.type = "number";
+    inputN.id = `N_${i}`;
+    inputN.oninput = calcAll;
+    tdN.appendChild(inputN);
+
+    const tdt = document.createElement("td");
+    const inputt = document.createElement("input");
+    inputt.type = "number";
+    inputt.id = `t_${i}`;
+    inputt.oninput = calcAll;
+    tdt.appendChild(inputt);
+
+    const tdT = document.createElement("td");
+    tdT.id = `T_${i}`; tdT.innerText = "-";
+
+    const tdOmega = document.createElement("td");
+    tdOmega.id = `omega_${i}`; tdOmega.innerText = "-";
+
+    const tdFc = document.createElement("td");
+    tdFc.id = `Fc_${i}`; tdFc.innerText = "-";
+
+    const tdErr = document.createElement("td");
+    tdErr.id = `err_${i}`; tdErr.innerText = "-";
+
+    row.appendChild(td1);
+    if (i === 0) {
+      const tdFg = document.createElement("td");
+      tdFg.rowSpan = 3;
+      row.appendChild(tdFg);
+    }
+    row.appendChild(tdN);
+    row.appendChild(tdt);
+    row.appendChild(tdT);
+    row.appendChild(tdOmega);
+    row.appendChild(tdFc);
+    row.appendChild(tdErr);
+
+    tbody.appendChild(row);
+  }
+}
+
+function calcAll() {
+  const m = parseFloat(document.getElementById("mass").value);
+  const r = parseFloat(document.getElementById("radius").value);
+  const Fg = parseFloat(document.getElementById("Fg").value);
+  const pi = Math.PI;
+
+  let sum_N = 0, sum_t = 0, sum_T = 0, sum_omega = 0, sum_Fc = 0, sum_err = 0, count = 0;
+
+  for (let i = 0; i < 3; i++) {
+    const N = parseFloat(document.getElementById(`N_${i}`).value);
+    const t = parseFloat(document.getElementById(`t_${i}`).value);
+
+    if (!isNaN(N) && !isNaN(t) && !isNaN(m) && !isNaN(r) && !isNaN(Fg)) {
+      const T = t / N;
+      const omega = 2 * pi / T;
+      const Fc = (m * omega * omega * r)/100000;
+      const err = ((Fc - Fg) / Fg) * 100;
+
+      document.getElementById(`T_${i}`).innerText = T.toFixed(3);
+      document.getElementById(`omega_${i}`).innerText = omega.toFixed(3);
+      document.getElementById(`Fc_${i}`).innerText = Fc.toFixed(2);
+      document.getElementById(`err_${i}`).innerText = err.toFixed(2);
+
+      sum_N += N; sum_t += t; sum_T += T;
+      sum_omega += omega; sum_Fc += Fc; sum_err += err;
+      count++;
+    } else {
+      document.getElementById(`T_${i}`).innerText = "-";
+      document.getElementById(`omega_${i}`).innerText = "-";
+      document.getElementById(`Fc_${i}`).innerText = "-";
+      document.getElementById(`err_${i}`).innerText = "-";
+    }
+  }
+
+  if (count > 0) {
+    document.getElementById("avg_N").innerText = (sum_N / count).toFixed(2);
+    document.getElementById("avg_t").innerText = (sum_t / count).toFixed(2);
+    document.getElementById("avg_T").innerText = (sum_T / count).toFixed(3);
+    document.getElementById("avg_omega").innerText = (sum_omega / count).toFixed(3);
+    document.getElementById("avg_Fc").innerText = (sum_Fc / count).toFixed(2);
+    document.getElementById("avg_err").innerText = (sum_err / count).toFixed(2);
+  } else {
+    ["avg_N","avg_t","avg_T","avg_omega","avg_Fc","avg_err"].forEach(id => {
+      document.getElementById(id).innerText = "-";
+    });
+  }
+}
+
+window.onload = buildTable;
+</script>
+
+</body>
+</html>
