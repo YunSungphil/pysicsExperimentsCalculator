@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>실험 7 - 탄환 속도 측정</title>
+  <link rel="stylesheet" href="../style.css">
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['\\(', '\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <style>
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; max-width: 1000px; }
+    th, td { border: 1px solid #aaa; padding: 6px 10px; text-align: center; }
+    input[type="number"] { width: 70px; }
+    .x-cell { background-color: #eee; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="../index.html">🏠 홈</a>
+  <a href="density.html">1. 액체의 밀도</a>
+  <a href="force.html">2. 힘의 합성과 분해</a>
+  <a href="sound.html">3. 소리 속도</a>
+  <a href="expansion.html">4. 선팽창</a>
+  <a href="glider.html">5. 가속도</a>
+  <a href="centripetal.html">6. 구심력</a>
+  <a href="bullet.html" class="active">7. 탄환 속도</a>
+  <a href="torque.html">8. 회전 평형</a>
+  <a href="gravity.html">9. 중력가속도</a>
+  <a href="moment.html">10. 관성모멘트</a>
+</div>
+
+<div class="content">
+  <h2>실험 7 - 탄환 속도 측정</h2>
+  <p><strong>실험 목표:</strong> 탄진동자를 이용하여 탄환의 발사속도를 측정한다. 이 과정에서 선운동량 보존 법칙과 역학적 에너지 보존 법칙을 이해한다.</p>
+
+  <h3>🔹 단 수 입력</h3>
+  <p>단: <input type="number" id="step" placeholder="예: 1"> 단</p>
+
+  <h3>🔹 탄동진자를 이용한 탄환의 속도 측정</h3>
+  <p>탄환 질량 \(m\) (g): <input type="number" id="massBullet" oninput="calcAll()">  
+     &nbsp;&nbsp;탄동진자 질량 \(M\) (g): <input type="number" id="massBlock" oninput="calcAll()">  
+     &nbsp;&nbsp;질량중심까지 거리 \(l\) (cm): <input type="number" id="length" oninput="calcAll()"></p>
+
+  <table>
+    <tr>
+      <th rowspan="2"><span>\( \text{각도} \)</span></th>
+      <th colspan="8">1 ~ 8회</th>
+      <th rowspan="2">평균</th>
+    </tr>
+    <tr>
+      <th>1</th><th>2</th><th>3</th><th>4</th>
+      <th>5</th><th>6</th><th>7</th><th>8</th>
+    </tr>
+    <tr>
+      <td><span>\( \theta_i \)</span></td>
+      <td><input id="ti0" oninput="calcAll()"></td><td><input id="ti1" oninput="calcAll()"></td>
+      <td><input id="ti2" oninput="calcAll()"></td><td><input id="ti3" oninput="calcAll()"></td>
+      <td><input id="ti4" oninput="calcAll()"></td><td><input id="ti5" oninput="calcAll()"></td>
+      <td><input id="ti6" oninput="calcAll()"></td><td><input id="ti7" oninput="calcAll()"></td>
+      <td class="x-cell">X</td>
+    </tr>
+    <tr>
+      <td><span>\( \theta_f \)</span></td>
+      <td><input id="tf0" oninput="calcAll()"></td><td><input id="tf1" oninput="calcAll()"></td>
+      <td><input id="tf2" oninput="calcAll()"></td><td><input id="tf3" oninput="calcAll()"></td>
+      <td><input id="tf4" oninput="calcAll()"></td><td><input id="tf5" oninput="calcAll()"></td>
+      <td><input id="tf6" oninput="calcAll()"></td><td><input id="tf7" oninput="calcAll()"></td>
+      <td class="x-cell">X</td>
+    </tr>
+    <tr>
+      <td><span>\( \theta \)</span></td>
+      <td><span id="theta0">-</span></td><td><span id="theta1">-</span></td>
+      <td><span id="theta2">-</span></td><td><span id="theta3">-</span></td>
+      <td><span id="theta4">-</span></td><td><span id="theta5">-</span></td>
+      <td><span id="theta6">-</span></td><td><span id="theta7">-</span></td>
+      <td><span id="thetaAvg">-</span></td>
+    </tr>
+  </table>
+
+  <p><strong>v(실험):</strong> <span id="v_exp">-</span> cm/s</p>
+
+  <h3>🔹 수평도달거리를 이용한 탄환의 속도 측정</h3>
+  <p>탄환의 낙하높이 \(H\) (cm): <input type="number" id="H" oninput="calcAll()"></p>
+
+  <table>
+    <tr>
+      <th><span>\( x_D \)</span></th>
+      <td><input id="xd0" oninput="calcAll()"></td><td><input id="xd1" oninput="calcAll()"></td>
+      <td><input id="xd2" oninput="calcAll()"></td><td><input id="xd3" oninput="calcAll()"></td>
+      <td><input id="xd4" oninput="calcAll()"></td><td><input id="xd5" oninput="calcAll()"></td>
+      <td><input id="xd6" oninput="calcAll()"></td><td><input id="xd7" oninput="calcAll()"></td>
+      <td><span id="xdAvg">-</span></td>
+    </tr>
+  </table>
+
+  <p><strong>v(이론):</strong> <span id="v_theory">-</span> cm/s</p>
+  <p><strong>오차율:</strong> <span id="error">-</span> %</p>
+</div>
+
+<script>
+function calcAll() {
+  const g = 980;
+  const m = parseFloat(document.getElementById("massBullet").value);
+  const M = parseFloat(document.getElementById("massBlock").value);
+  const l = parseFloat(document.getElementById("length").value);
+  const H = parseFloat(document.getElementById("H").value);
+
+  let thetaSum = 0, thetaCount = 0;
+  for (let i = 0; i < 8; i++) {
+    const ti = parseFloat(document.getElementById("ti" + i).value);
+    const tf = parseFloat(document.getElementById("tf" + i).value);
+    const thSpan = document.getElementById("theta" + i);
+    if (!isNaN(ti) && !isNaN(tf)) {
+      const theta = tf - ti;
+      thSpan.innerText = theta.toFixed(2);
+      thetaSum += theta;
+      thetaCount++;
+    } else {
+      thSpan.innerText = "-";
+    }
+  }
+
+  const thetaAvg = thetaCount > 0 ? thetaSum / thetaCount : null;
+  document.getElementById("thetaAvg").innerText = thetaAvg !== null ? thetaAvg.toFixed(2) : "-";
+
+  if (!isNaN(m) && !isNaN(M) && !isNaN(l) && thetaAvg !== null) {
+    const rad = Math.PI / 180;
+    const v_exp = ((m + M) / m) * Math.sqrt(2 * l * (1 - Math.cos(thetaAvg * rad))*g);
+    document.getElementById("v_exp").innerText = v_exp.toFixed(2);
+
+    let xdSum = 0, xdCount = 0;
+    for (let i = 0; i < 8; i++) {
+      const x = parseFloat(document.getElementById("xd" + i).value);
+      if (!isNaN(x)) {
+        xdSum += x;
+        xdCount++;
+      }
+    }
+
+    const xdAvg = xdCount > 0 ? xdSum / xdCount : null;
+    document.getElementById("xdAvg").innerText = xdAvg !== null ? xdAvg.toFixed(2) : "-";
+
+    if (!isNaN(H) && xdAvg !== null) {
+      const v_theory = xdAvg * Math.sqrt(g / (2 * H));
+      document.getElementById("v_theory").innerText = v_theory.toFixed(2);
+      const error = Math.abs((v_theory - v_exp) / v_theory) * 100;
+      document.getElementById("error").innerText = error.toFixed(2);
+    }
+  }
+}
+</script>
+
+</body>
+</html>
