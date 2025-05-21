@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>실험 10 - 관성 모멘트 측정</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['\\(', '\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <style>
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; max-width: 1000px; }
+    th, td { border: 1px solid #aaa; padding: 6px 10px; text-align: center; }
+    input[type="number"] { width: 80px; }
+    .x-cell { background-color: #eee; }
+  </style>
+</head>
+<body>
+
+
+<div class="sidebar">
+  <a href="../index.html">🏠 홈</a>
+  <a href="density.html">1. 액체의 밀도</a>
+  <a href="force.html">2. 힘의 합성과 분해</a>
+  <a href="sound.html">3. 소리 속도</a>
+  <a href="expansion.html">4. 선팽창</a>
+  <a href="glider.html">5. 가속도</a>
+  <a href="centripetal.html">6. 구심력</a>
+  <a href="bullet.html">7. 탄환 속도</a>
+  <a href="torque.html">8. 회전 평형</a>
+  <a href="gravity.html">9. 중력가속도</a>
+  <a href="moment.html" class="active">10. 관성모멘트</a>
+</div>
+
+<div class="content">
+  <h2>실험 10 - 관성 모멘트 측정</h2>
+  <p><strong>실험 목표:</strong> 고정축에 대한 강체의 회전운동을 해석하고 관성 모멘트의 의미를 이해한다.</p>
+
+  <h3>🔹 사각추의 관성 모멘트 측정</h3>
+  <p>
+    기본틀의 관성모멘트 \( I_{\text{기본틀}} \) (g·cm²): <input type="number" id="I_base" oninput="calc()"> &nbsp;
+    사각추 질량 \( M \) (g): <input type="number" id="M1" oninput="calc()"> &nbsp;
+    회전반지름 \( R \) (cm): <input type="number" id="R1" oninput="calc()"> &nbsp;
+    추와 추걸이 질량 \( m \) (g): <input type="number" id="m1" oninput="calc()"> &nbsp;
+    도르래 반지름 \( r \) (cm): <input type="number" id="r1" oninput="calc()">
+  </p>
+
+<p>\( I_{\text{이론}} = MR^2 \): 
+  <span id="I_theory1">-</span> g·cm²</p>
+
+
+ <h4>각가속도 \( \alpha \)</h4>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>1회</th><th>2회</th><th>3회</th><th>4회</th><th>5회</th>
+    <th>6회</th><th>7회</th><th>8회</th><th>9회</th><th>10회</th>
+    <th>평균</th>
+  </tr>
+  <tr>
+    <td>\( \alpha \) (rad/s²)</td>
+    <td><input id="alpha1_0" oninput="calc()"></td>
+    <td><input id="alpha1_1" oninput="calc()"></td>
+    <td><input id="alpha1_2" oninput="calc()"></td>
+    <td><input id="alpha1_3" oninput="calc()"></td>
+    <td><input id="alpha1_4" oninput="calc()"></td>
+    <td><input id="alpha1_5" oninput="calc()"></td>
+    <td><input id="alpha1_6" oninput="calc()"></td>
+    <td><input id="alpha1_7" oninput="calc()"></td>
+    <td><input id="alpha1_8" oninput="calc()"></td>
+    <td><input id="alpha1_9" oninput="calc()"></td>
+    <td><span id="alpha_avg1">-</span></td>
+  </tr>
+</table>
+
+<p>\( I_{\text{기본틀+사각추}} = mr^2 \left( \frac{g}{r\alpha} - 1 \right) \): 
+  <span id="I_total1">-</span> g·cm²</p>
+
+<p>\( I_{\text{사각추}} = I_{\text{기본틀+사각추}} - I_{\text{기본틀}} \): 
+  <span id="I_square">-</span> g·cm²</p>
+
+<p>\( \text{오차율} = \left| \frac{I_{\text{이론}} - I_{\text{사각추}}}{I_{\text{이론}}} \right| \times 100\% \): 
+  <span id="error1">-</span> %</p>
+
+</div>
+
+<script>
+function calc() {
+  const g = 979.94;
+  const M = parseFloat(document.getElementById("M1").value);
+  const R = parseFloat(document.getElementById("R1").value);
+  const m = parseFloat(document.getElementById("m1").value);
+  const r = parseFloat(document.getElementById("r1").value);
+  const I_base = parseFloat(document.getElementById("I_base").value);
+
+  let alphaSum = 0, alphaCount = 0;
+
+  for (let i = 0; i < 10; i++) {
+    const a = parseFloat(document.getElementById("alpha1_" + i).value);
+    if (!isNaN(a)) {
+      alphaSum += a;
+      alphaCount++;
+    }
+  }
+
+  const alphaAvg = alphaCount > 0 ? alphaSum / alphaCount : null;
+  document.getElementById("alpha_avg1").innerText = alphaAvg !== null ? alphaAvg.toFixed(4) : "-";
+
+  let I_theory = null;
+  if (!isNaN(M) && !isNaN(R)) {
+    I_theory = M * R * R;
+    document.getElementById("I_theory1").innerText = I_theory.toFixed(4);
+  } else {
+    document.getElementById("I_theory1").innerText = "-";
+  }
+
+  if (!isNaN(m) && !isNaN(r) && alphaAvg !== null) {
+    const I_total = m * r * r * ((g / (r * alphaAvg)) - 1);
+    document.getElementById("I_total1").innerText = I_total.toFixed(4);
+
+    if (!isNaN(I_base)) {
+      const I_square = I_total - I_base;
+      document.getElementById("I_square").innerText = I_square.toFixed(4);
+
+      if (!isNaN(I_theory)) {
+        const error = Math.abs((I_theory - I_square) / I_theory) * 100;
+        document.getElementById("error1").innerText = error.toFixed(4);
+      } else {
+        document.getElementById("error1").innerText = "-";
+      }
+    } else {
+      document.getElementById("I_square").innerText = "-";
+      document.getElementById("error1").innerText = "-";
+    }
+  } else {
+    document.getElementById("I_total1").innerText = "-";
+    document.getElementById("I_square").innerText = "-";
+    document.getElementById("error1").innerText = "-";
+  }
+}
+</script>
+
+
+</body>
+</html>
