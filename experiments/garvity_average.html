@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>실험 9 - 중력가속도 측정2 - 단진자 이용</title>
+  <link rel="stylesheet" href="../style.css">
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['\\(', '\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <style>
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; max-width: 1000px; }
+    th, td { border: 1px solid #aaa; padding: 6px 10px; text-align: center; }
+    input[type="number"] { width: 70px; }
+    .x-cell { background-color: #eee; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="../index.html">🏠 홈</a>
+  <a href="density.html">1. 액체의 밀도</a>
+  <a href="force.html">2. 힘의 합성과 분해</a>
+  <a href="sound.html">3. 소리 속도</a>
+  <a href="expansion.html">4. 선팽창</a>
+  <a href="glider.html">5. 가속도</a>
+  <a href="centripetal.html">6. 구심력</a>
+  <a href="bullet.html" >7. 탄환 속도</a>
+  <a href="torque.html">8. 회전 평형</a>
+  <a href="gravity.html" class="active" >9. 중력가속도</a>
+  <a href="moment.html">10. 관성모멘트</a>
+</div>
+
+<div class="content">
+  <h2>실험 9 - 중력가속도 측정2 - 단진자 이용</h2>
+  <p><strong>실험 목표:</strong> 단진자를 이용하여 중력가속도를 측정한다. 그리고 중력가속도 실험식을 이끌어 낸 진자의 단조화운동을 이해한다.</p>
+
+  <a href="gravity_theta.html" target="_blank" style="display:block; margin-bottom: 12px;">
+    (1) 사인 세타가 작을 때 세타와의 비교
+  </a>
+  <a href="gravity_radius.html" target="_blank" style="display:block; margin-bottom: 12px;">
+    (2) 구형 추의 반지름 측정하기
+  </a>
+  <a href="garvity_average.html" target="_blank" style="display:block; margin-bottom: 12px;">
+    (3) 중력가속도의 평균값 계산하기
+  </a>
+
+  <h3>📌 (3) 중력가속도의 평균값 계산하기</h3>
+  <table id="gravityTable">
+    <tr> <th>회</th> <th>진자의 길이 \(L\)</th> <th>주기의 평균 \(T\)</th> <th>중력가속도 \(g\)</th> </tr>
+    <script>
+      for (let i = 1; i <= 6; i++) {
+        document.write(`
+          <tr>
+            <td>${i}</td>
+            <td><input type="number" id="L${i}"></td>
+            <td><input type="number" id="T${i}"></td>
+            <td><input type="number" id="gravity${i}" oninput="calc()"></td>
+          </tr>`);
+      }
+    </script>
+    <tr>
+      <td>평균</td>
+      <td>X</td>
+      <td>X</td>
+      <td><span id="gravityAvg">-</span></td>
+    </tr>
+  </table>
+
+  <button onclick="exportToExcel()">엑셀로 저장</button>
+</div>
+
+<script>
+function calc() {
+  let sum = 0, count = 0;
+  for (let i = 1; i <= 6; i++) {
+    const g = parseFloat(document.getElementById("gravity" + i).value);
+    if (!isNaN(g)) {
+      sum += g;
+      count++;
+    }
+  }
+  const avg = count > 0 ? sum / count : null;
+  document.getElementById("gravityAvg").innerText = avg !== null ? avg.toFixed(4) : "-";
+}
+
+function exportToExcel() {
+  const ws_data = [["회", "진자의 길이 (cm)", "주기의 평균 T (s)", "중력가속도 g (cm/s²)"]];
+  for (let i = 1; i <= 6; i++) {
+    const L = document.getElementById("L" + i).value || "";
+    const T = document.getElementById("T" + i).value || "";
+    const g = document.getElementById("gravity" + i).value || "";
+    ws_data.push([i, L, T, g]);
+  }
+  const gAvg = document.getElementById("gravityAvg").innerText;
+  ws_data.push(["평균", "", "", gAvg]);
+
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "중력가속도 평균");
+  XLSX.writeFile(wb, "실험9_중력가속도_평균값_포함.xlsx");
+}
+</script>
+
+</body>
+</html>

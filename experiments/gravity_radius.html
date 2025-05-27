@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>실험 9 - 중력가속도 측정2 - 단진자 이용</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['\\(', '\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <style>
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; max-width: 1000px; }
+    th, td { border: 1px solid #aaa; padding: 6px 10px; text-align: center; }
+    input[type="number"] { width: 70px; }
+    .x-cell { background-color: #eee; }
+    button { margin-top: 15px; padding: 6px 12px; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="../index.html">🏠 홈</a>
+  <a href="density.html">1. 액체의 밀도</a>
+  <a href="force.html">2. 힘의 합성과 분해</a>
+  <a href="sound.html">3. 소리 속도</a>
+  <a href="expansion.html">4. 선팽창</a>
+  <a href="glider.html">5. 가속도</a>
+  <a href="centripetal.html">6. 구심력</a>
+  <a href="bullet.html">7. 탄환 속도</a>
+  <a href="torque.html">8. 회전 평형</a>
+  <a href="gravity.html" class="active">9. 중력가속도</a>
+  <a href="moment.html">10. 관성모멘트</a>
+</div>
+
+<div class="content">
+  <h2>실험 9 - 중력가속도 측정2 - 단진자 이용</h2>
+  <p><strong>실험 목표:</strong> 단진자를 이용하여 중력가속도를 측정한다. 그리고 중력가속도 실험식을 이끌어 낸 진자의 단조화운동을 이해한다. </p>
+
+  <a href="gravity_theta.html" target="_blank" style="display:block; margin-bottom: 12px;">
+    (1) 사인 세타가 작을 때 세타와의 비교
+  </a>
+  <a href="gravity_radius.html" target="_blank" style="display:block; margin-bottom: 12px;">
+    (2) 구형 추의 반지름 측정하기
+  </a>
+  <a href="garvity_average.html" target="_blank" style="display:block; margin-bottom: 12px;">
+    (3) 중력가속도의 평균값 계산하기
+  </a>
+
+  <h3>📌 (2) 구형 추의 반지름 측정</h3>
+  <table id="radiusTable">
+    <tr><th>회</th><th>구형 추의 지름 (cm)</th></tr>
+    <script>
+      for (let i = 1; i <= 5; i++) {
+        document.write(`<tr><td>${i}</td><td><input type="number" id="diameter${i}" oninput="calc()"></td></tr>`);
+      }
+    </script>
+    <tr>
+      <td class="x-cell">지름 평균</td>
+      <td><span id="diameterAvg">-</span></td>
+    </tr>
+    <tr>
+      <td class="x-cell">반지름 평균</td>
+      <td><span id="radiusAvg">-</span></td>
+    </tr>
+  </table>
+
+  <button onclick="exportToExcel()">엑셀로 내보내기</button>
+</div>
+
+<script>
+function calc() {
+  let sum = 0, count = 0;
+  for (let i = 1; i <= 5; i++) {
+    const d = parseFloat(document.getElementById("diameter" + i).value);
+    if (!isNaN(d)) {
+      sum += d;
+      count++;
+    }
+  }
+
+  const diameterAvg = count > 0 ? sum / count : null;
+  document.getElementById("diameterAvg").innerText = diameterAvg !== null ? diameterAvg.toFixed(4) : "-";
+
+  const radiusAvg = diameterAvg !== null ? diameterAvg / 2 : null;
+  document.getElementById("radiusAvg").innerText = radiusAvg !== null ? radiusAvg.toFixed(4) : "-";
+}
+
+function exportToExcel() {
+  const wb = XLSX.utils.book_new();
+  const ws_data = [["회", "구형 추의 지름 (cm)"]];
+
+  let sum = 0, count = 0;
+
+  for (let i = 1; i <= 5; i++) {
+    const input = document.getElementById("diameter" + i);
+    const val = parseFloat(input.value);
+    ws_data.push([i, isNaN(val) ? "" : val]);
+    if (!isNaN(val)) {
+      sum += val;
+      count++;
+    }
+  }
+
+  const diameterAvg = count > 0 ? sum / count : null;
+  const radiusAvg = diameterAvg !== null ? diameterAvg / 2 : null;
+
+  ws_data.push(["지름 평균", diameterAvg !== null ? diameterAvg.toFixed(4) : "-"]);
+  ws_data.push(["반지름 평균", radiusAvg !== null ? radiusAvg.toFixed(4) : "-"]);
+
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  XLSX.utils.book_append_sheet(wb, ws, "반지름 측정값");
+  XLSX.writeFile(wb, "실험9_구형추_반지름_입력포함.xlsx");
+}
+</script>
+
+</body>
+</html>
