@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>실험 9 - 중력가속도 측정2 - 단진자 이용</title>
+  <link rel="stylesheet" href="../style.css">
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['\\(', '\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <style>
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; max-width: 1000px; }
+    th, td { border: 1px solid #aaa; padding: 6px 10px; text-align: center; }
+    input[type="number"] { width: 70px; }
+    .x-cell { background-color: #eee; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="../index.html">🏠 홈</a>
+  <a href="density.html">1. 액체의 밀도</a>
+  <a href="force.html">2. 힘의 합성과 분해</a>
+  <a href="sound.html">3. 소리 속도</a>
+  <a href="expansion.html">4. 선팽창</a>
+  <a href="glider.html">5. 가속도</a>
+  <a href="centripetal.html">6. 구심력</a>
+  <a href="bullet.html" >7. 탄환 속도</a>
+  <a href="torque.html">8. 회전 평형</a>
+  <a href="gravity.html" class="active" >9. 중력가속도</a>
+  <a href="moment.html">10. 관성모멘트</a>
+</div>
+
+<div class="content">
+  <h2>실험 9 - 중력가속도 측정2 - 단진자 이용</h2>
+  <p><strong>실험 목표:</strong> 단진자를 이용하여 중력가속도를 측정한다. 그리고 중력가속도 실험식을 이끌어 낸 진자의 단조화운동을 이해한다. </p>
+
+<a href="gravity_theta.html" target="_blank" style="display:block; margin-bottom: 12px;">
+  (1) 사인 세타가 작을 때 세타와의 비교
+</a>
+<a href="gravity_radius.html" target="_blank" style="display:block; margin-bottom: 12px;">
+  (2) 구형 추의 반지름 측정하기
+</a>
+<a href="garvity_average.html" target="_blank" style="display:block; margin-bottom: 12px;">
+  (3) 중력가속도의 평균값 계산하기
+</a>
+    <p>
+    실의 길이 \( l \) (cm): <input type="number" id="l" oninput="calc()"> &nbsp;
+    구형 추의 반지름 \( r \) (cm): <input type="number" id="r" oninput="calc()"> &nbsp;
+    진자의 길이 \( L = r + l \): <span id="L">-</span> cm
+  </p>
+
+  <h3>📌 주기 측정</h3>
+  <table>
+    <tr><th>회</th><th>\( T \) (s)</th></tr>
+    <script>
+      for (let i = 1; i <= 10; i++) {
+        document.write(`<tr><td>${i}</td><td><input type="number" id="T${i}" oninput="calc()"></td></tr>`);
+      }
+    </script>
+    <tr>
+      <td>평균</td>
+      <td><span id="Tavg">-</span></td>
+    </tr>
+  </table>
+
+  <p>\( g = \frac{4\pi^2 L}{T^2} \): <span id="g">-</span> cm/s²</p>
+
+  <button onclick="exportToExcel()">엑셀로 저장</button>
+
+</div>
+
+
+
+<script>
+function calc() {
+  const l = parseFloat(document.getElementById("l").value);
+  const r = parseFloat(document.getElementById("r").value);
+  const L = (!isNaN(l) && !isNaN(r)) ? l + r : null;
+  if (L !== null) document.getElementById("L").innerText = L.toFixed(2);
+  else document.getElementById("L").innerText = "-";
+
+  let sum = 0, count = 0;
+  for (let i = 1; i <= 10; i++) {
+    const t = parseFloat(document.getElementById("T" + i).value);
+    if (!isNaN(t)) {
+      sum += t;
+      count++;
+    }
+  }
+
+  const Tavg = count > 0 ? sum / count : null;
+  document.getElementById("Tavg").innerText = Tavg !== null ? Tavg.toFixed(4) : "-";
+
+  if (L !== null && Tavg !== null && Tavg > 0) {
+    const g = (4 * Math.PI ** 2 * L) / (Tavg ** 2);
+    document.getElementById("g").innerText = g.toFixed(4);
+  } else {
+    document.getElementById("g").innerText = "-";
+  }
+}
+
+function exportToExcel() {
+  const ws_data = [];
+
+  // 실험 정보
+  const l = document.getElementById("l").value;
+  const r = document.getElementById("r").value;
+  const L = document.getElementById("L").innerText;
+  ws_data.push(["실의 길이 (cm)", l]);
+  ws_data.push(["구형 추의 반지름 (cm)", r]);
+  ws_data.push(["진자의 길이 L = r + l (cm)", L]);
+  ws_data.push([]);
+  
+  // 주기 측정 테이블
+  ws_data.push(["회", "T (s)"]);
+  for (let i = 1; i <= 10; i++) {
+    const T = document.getElementById("T" + i).value;
+    ws_data.push([i, T || ""]);
+  }
+  const Tavg = document.getElementById("Tavg").innerText;
+  ws_data.push(["평균", Tavg]);
+  ws_data.push([]);
+
+  // g 계산 결과
+  const g = document.getElementById("g").innerText;
+  ws_data.push(["중력가속도 g (cm/s²)", g]);
+
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "중력가속도 측정");
+  XLSX.writeFile(wb, "실험9_중력가속도_입력포함.xlsx");
+}
+</script>
+
+
+
+</body>
+</html>
